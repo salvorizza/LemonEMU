@@ -67,7 +67,7 @@ LemonEMU::~LemonEMU(){
 
 bool LemonEMU::Initialize(){
 	m_vm = new Chip8();
-	m_window = new Window("LemonEMU",640,320);
+	m_window = new Window("LemonEMU",640,324);
 	if(!m_window->Init()){
 		return false;
 	}
@@ -102,11 +102,16 @@ bool LemonEMU::Initialize(){
 	return true;
 }
 
-int32_t LemonEMU::Run(){
+int32_t LemonEMU::Run(const std::string& rom_path){
 	if(!Initialize()){
 		return -1;
 	}
 	m_timer->Start();
+	if (rom_path != "") {
+		ROM rom = ROMLoader::LoadROM(rom_path.c_str());
+		m_vm->LoadROM(rom);
+		PlayEmulation();
+	}
 	float accumulator = 0;
 	float elapsed = 0;
 	while(!m_window->IsClosed()){

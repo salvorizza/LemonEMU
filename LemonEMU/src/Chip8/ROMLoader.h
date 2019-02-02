@@ -5,7 +5,7 @@
 #include "../pch.h"
 
 //Preprocessors Definitions
-#define ROM_MAX_SIZE 0x1000 - 0x200 //The program has the length of 0xE00 by default but in ETI start at 0x600
+#define ROM_MAX_SIZE 0x1000 - 0x200 //The program has the length of 0xE00 by default but in ETI start at 0x600 so it is less
 
 //Structs
 struct ROM {

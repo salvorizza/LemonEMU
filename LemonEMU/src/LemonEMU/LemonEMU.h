@@ -22,7 +22,7 @@ public:
 	LemonEMU();
 	~LemonEMU();
 	
-	int32_t Run();
+	int32_t Run(const std::string& rom_path);
 	void StopEmulation();
 	void PauseEmulation();
 	void PlayEmulation();
@@ -39,7 +39,6 @@ private:
 	Timer* m_timer;
 	const int FRAMES_PER_SECOND = 20;
 	SDL_Surface* m_display;
-	SDL_Texture* m_texture;
 	bool m_stop_emulation;
 	
 	HMENU file_menu;

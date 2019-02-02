@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Chip8.h"
 
-uint8_t Chip8::s_font_set[80] = {
+uint8_t Chip8::s_font_set[0x50] = {
   0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
   0x20, 0x60, 0x20, 0x20, 0x70, // 1
   0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
@@ -97,6 +97,7 @@ void Chip8::init_chip()
 void Chip8::load_program(const ROM& rom)
 {
 	memcpy(&m_memory[CHIP8_PROGRAM_START], rom.data, rom.length);
+	//log_memory();
 }
 
 void Chip8::clear_screen(uint8_t val)
@@ -111,7 +112,6 @@ void Chip8::set_pixel(uint8_t x, uint8_t y, uint8_t val)
 
 void Chip8::cpu_cycle()
 {
-	
 	if (m_wait_press != 0xFF) {
 		uint8_t pressed = 0x0;
 		for (int i = 0; i < CHIP8_KEYBOARD_SIZE; i++) {
@@ -129,18 +129,66 @@ void Chip8::cpu_cycle()
 		}
 	}
 	uint16_t opcode = m_memory[m_PC] << 8 | m_memory[m_PC + 1];
-	printf("0x%X code:%X\n",opcode,opcode>>12);
-	(this->*m_function_map[opcode>>12])(opcode);
+	uint8_t code = opcode >> 12;
+	switch (code) {
+		case 0x0:
+			system(opcode);
+			break;
+		case 0x1:
+			jump(opcode);
+			break;
+		case 0x2:
+			call(opcode);
+			break;
+		case 0x3:
+			equal_condition(opcode);
+			break;
+		case 0x4:
+			not_equal_condition(opcode);
+			break;
+		case 0x5:
+			equal_condition_registers(opcode);
+			break;
+		case 0x6:
+			assign(opcode);
+			break;
+		case 0x7:
+			add_byte(opcode);
+			break;
+		case 0x8:
+			math(opcode);
+			break;
+		case 0x9:
+			skip_not_equal(opcode);
+			break;
+		case 0xA:
+			mov_I(opcode);
+			break;
+		case 0xB:
+			jump_to_add(opcode);
+			break;
+		case 0xC:
+			random(opcode);
+			break;
+		case 0xD:
+			draw(opcode);
+			break;
+		case 0xE:
+			keyboard(opcode);
+			break;
+		case 0xF:
+			utility(opcode);
+			break;
+
+	}
+	//(this->*m_function_map[code])(opcode);
 	
 	
-	if(m_delay != 0)
-		m_delay--;
+	if(m_delay > 0) m_delay--;
 	
-	if(m_sound_timer != 0)
-		m_sound_timer--;
+	if(m_sound_timer > 0) m_sound_timer--;
 		
-	if(m_sound_timer > 0)
-		MessageBeep(MB_OK);
+	if(m_sound_timer > 0) std::cout << '\a';
 	
 }
 
@@ -166,7 +214,7 @@ void Chip8::system(const uint16_t& opcode){
 			break;
 		}
 		case 0x00EE:{
-			m_PC = m_stack[m_SP--];
+			m_PC = m_stack[--m_SP];
 			break;
 		}
 	}
@@ -256,21 +304,17 @@ void Chip8::math(const uint16_t& opcode){
 			break;
 		}
 		case 0x0006:{
-			m_V[0x0F] = m_V[x] % 2;
+			m_V[0x0F] = m_V[x] & 0x1;
 			m_V[x] /= 2;
 			break;
 		}
 		case 0x0007:{
-			m_V[x] -= m_V[y];
-			if(m_V[x]> m_V[y]){
-				m_V[0x0F]=0x01;
-			}else{
-				m_V[0x0F]=0x00;
-			}
+			m_V[0xF] = (m_V[y] > m_V[x]) ? 1 : 0;
+			m_V[x] = m_V[y] - m_V[x];
 			break;
 		}
 		case 0x000E:{
-			m_V[0x0F] = m_V[x] % 2;
+			m_V[0x0F] = m_V[x] & 0x80;
 			m_V[x] *= 2;
 			break;
 		}
@@ -310,7 +354,6 @@ void Chip8::draw(const uint16_t& opcode){
 	uint8_t x = (opcode >> 8) & 0x0F;
 	uint8_t y = (opcode & 0x00F0) >> 4;
 	m_V[0xF] = 0;
-	//printf("opcode:%X n:%d\n",opcode,nibble);
 	for(uint8_t byte_scanner = 0;byte_scanner < nibble;byte_scanner++){
 		uint8_t pixel = m_memory[m_I + byte_scanner];
 		for(uint8_t bit_scanner = 0;bit_scanner < 8;bit_scanner++){
@@ -369,21 +412,21 @@ void Chip8::utility(const uint16_t& opcode){
 			break;
 		}
 		case 0x0029:{
-			m_I = m_V[x] * 0x05;
+			m_I = m_V[x] * 0x5;
 			break;
 		}
 		case 0x0033:{
 			m_memory[m_I + 0x00] = m_V[x] / 0x64;
-			m_memory[m_I + 0x01] = (m_V[x] % 0x64) / 0xA;
-			m_memory[m_I + 0x02] = m_V[x] % 0xA;
+			m_memory[m_I + 0x01] = (m_V[x] / 0xA) % 0xA;
+			m_memory[m_I + 0x02] = (m_V[x] % 0x64) % 0xA;
 			break;
 		}
 		case 0x0055:{
-			memcpy(&m_memory[m_I],m_V,x);
+			memcpy(&m_memory[m_I],m_V,x+0x1);
 			break;
 		}
 		case 0x0065:{
-			memcpy(m_V,&m_memory[m_I],x);
+			memcpy(m_V,&m_memory[m_I],x+0x1);
 			break;
 		}
 	}

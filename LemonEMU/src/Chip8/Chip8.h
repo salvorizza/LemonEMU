@@ -78,9 +78,9 @@ private:
 	//utility stuff
 	bool m_draw_flag;
 	uint8_t m_wait_press;
-	std::vector<function_t> m_function_map;
+	function_t m_function_map[0x10];
 	
-	static uint8_t s_font_set[80];
+	static uint8_t s_font_set[0x50];
 
 	void boot_strap();
 	void init_chip();

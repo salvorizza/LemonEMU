@@ -110,7 +110,7 @@ void Window::SetClearColor(int r, int g, int b ,int a){
 
 HMENU Window::AddWindowMenu(HWND hWnd,LPCWSTR content){
 	if(hMenubar == NULL){
-		hMenubar = CreateMenu(); 
+		hMenubar = CreateMenu();
 		int cy_border = GetSystemMetrics(SM_CYFRAME);
 		int cy_caption = GetSystemMetrics(SM_CYCAPTION);
 		RECT window_rect;
@@ -118,7 +118,7 @@ HMENU Window::AddWindowMenu(HWND hWnd,LPCWSTR content){
 		POINT client_top_left = { 0, 0 };
 		ClientToScreen(hWnd, &client_top_left);
 		int menu_height = client_top_left.y - window_rect.top - cy_caption - cy_border;
-		SDL_SetWindowSize(m_handle,m_width,m_height + menu_height);
+		SDL_SetWindowSize(m_handle,m_width,m_height + 20 - menu_height);
 	}
     HMENU new_menu = CreateMenu();
     AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR) new_menu, content);
