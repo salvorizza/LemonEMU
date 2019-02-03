@@ -1,7 +1,7 @@
 #ifndef _TIMER_H
 #define _TIMER_H
 
-#include <chrono>
+#include "../pch.h"
 
 class Timer{
 public:
@@ -11,11 +11,11 @@ public:
 	
 	void Start();
 	
-	std::chrono::time_point<std::chrono::system_clock> GetCurrentTime();
-	float GetElapsedTime();
+	std::chrono::time_point<std::chrono::steady_clock> GetCurrentTime();
+	double GetElapsedTime();
 	
 private:
-	std::chrono::time_point<std::chrono::system_clock> last_loop_time;
+	std::chrono::time_point<std::chrono::steady_clock> last_loop_time;
 };
 
 #endif

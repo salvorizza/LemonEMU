@@ -8,8 +8,10 @@
 #include<iostream>
 #include<cstring>
 #include<string>
+#include<chrono>
 #include<Windows.h>
 #include<functional>
 #include<vector>
+#include<thread>
 
 #endif //PCH_H

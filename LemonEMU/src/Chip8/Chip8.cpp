@@ -65,6 +65,11 @@ void Chip8::EmulateCycle(){
 	cpu_cycle();
 }
 
+void Chip8::UpdateTimers()
+{
+	update_timers();
+}
+
 void Chip8::StopEmulation(){
 	init_chip();
 }
@@ -181,15 +186,16 @@ void Chip8::cpu_cycle()
 			break;
 
 	}
-	//(this->*m_function_map[code])(opcode);
-	
-	
-	if(m_delay > 0) m_delay--;
-	
-	if(m_sound_timer > 0) m_sound_timer--;
-		
-	if(m_sound_timer > 0) std::cout << '\a';
-	
+	//(this->*m_function_map[code])(opcode);	
+}
+
+void Chip8::update_timers()
+{
+	if (m_delay > 0) m_delay--;
+
+	if (m_sound_timer > 0) m_sound_timer--;
+
+	if (m_sound_timer > 0) std::cout << '\a';
 }
 
 void Chip8::log_memory(){

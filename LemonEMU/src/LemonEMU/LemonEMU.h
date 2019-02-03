@@ -40,6 +40,7 @@ private:
 	const int FRAMES_PER_SECOND = 20;
 	SDL_Surface* m_display;
 	bool m_stop_emulation;
+	double m_emulation_speed = 2;
 	
 	HMENU file_menu;
 	HMENU emulation_menu;

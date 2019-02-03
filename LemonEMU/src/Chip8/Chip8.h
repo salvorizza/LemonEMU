@@ -35,6 +35,7 @@ public:
 
 	uint8_t LoadROM(const ROM& rom);
 	void EmulateCycle();
+	void UpdateTimers();
 	void StopEmulation();
 	
 	bool CanDraw() const { return m_draw_flag; } 
@@ -88,6 +89,7 @@ private:
 	void clear_screen(uint8_t val);
 	void set_pixel(uint8_t x, uint8_t y, uint8_t val);
 	void cpu_cycle();
+	void update_timers();
 	
 	
 	//Utilities

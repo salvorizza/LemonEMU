@@ -112,22 +112,27 @@ int32_t LemonEMU::Run(const std::string& rom_path){
 		m_vm->LoadROM(rom);
 		PlayEmulation();
 	}
-	float accumulator = 0;
-	float elapsed = 0;
+	double accumulator = 0;
+	double elapsed = 0;
 	while(!m_window->IsClosed()){
 		if(!m_stop_emulation){
 			elapsed = m_timer->GetElapsedTime();
 			m_vm->EmulateCycle();
+			accumulator += elapsed;
+			if (accumulator >= 1000.0/ 60) {
+				m_vm->UpdateTimers();
+				accumulator = 0;
+			}
 		}
 		this->HandleInput();
 		if(m_vm->CanDraw()){
 			Render();
 		}
 		m_window->Update();
-		if(!m_stop_emulation && elapsed < 1000.0f/FRAME_RATE){
-			SDL_Delay((uint32_t)(1000.0f/FRAME_RATE - elapsed));
+		if (!m_stop_emulation) {
+			double sleep_for = max(0, m_emulation_speed - elapsed);
+			std::this_thread::sleep_for(std::chrono::duration<double,std::ratio<1,1000>>(sleep_for));
 		}
-		
 	}
 	return 0;
 }
